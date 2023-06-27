@@ -1,0 +1,48 @@
+name: .NET Continuous Integration Workflow
+
+on:
+  push:
+    branches-ignore:
+      - 'main'
+    paths:
+      - '.github/workflows/continuous-integration-workflow.yml'
+      - 'src/**'
+
+  workflow_dispatch:
+
+env:
+  ARTIFACT_NAME: '' # Replace with the name of your artifact when it's uploaded to GitHub
+  DOTNET_VERSION: '' # Replace with the version of .NET you want to use
+  PUBLISH_PROJECT_FILE: '' # Replace with the file name of your project to run dotnet publish on
+  PUBLISH_PROJECT_FOLDER: '' # Replace with the folder path that contains your project to run dotnet publish on
+  SOLUTION_FILE: '' # Replace with the path to your solution file
+  UNIT_TEST_PROJECT_FILE: '' # Replace with the file name of your unit test project
+  UNIT_TEST_PROJECT_FOLDER: '' # Replace with the folder path that containers your unit test project
+
+jobs:
+  gitVersionJob:
+    name: GitVersion Job
+    uses: webstorm-tech/workflows/.github/workflows/gitversion-workflow.yml@v5
+
+  buildApplicationJob:
+    name: Build Application Job
+    needs: gitVersionJob
+    uses: webstorm-tech/workflows/.github/workflows/dotnet-build-web-apps-workflow.yml@v5
+    with:
+      artifactName: ${{ env.ARTIFACT_NAME }}
+      dotnetVersion: ${{ env.DOTNET_VERSION }}
+      semVer: ${{ needs.gitVersionJob.outputs.semVer }}
+      solutionFile: ${{ env.SOLUTION_FILE }}
+      unitTestProjectFile: ${{ env.UNIT_TEST_PROJECT_FILE }}
+      unitTestProjectFolder: ${{ env.UNIT_TEST_PROJECT_FOLDER }}
+      publishProjectFile: ${{ env.PUBLISH_PROJECT_FILE }}
+      publishProjectFolder: ${{ env.PUBLISH_PROJECT_FOLDER }}
+      secrets:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  verifyCodeStyleJob:
+    name: Verify Code Style Job
+    uses: webstorm-tech/workflows/.github/workflows/dotnet-verify-code-style-workflow.yml@v5
+    with:
+      dotnetVersion: ${{ env.DOTNET_VERSION }}
+      solutionFile: ${{ env.SOLUTION_FILE }}

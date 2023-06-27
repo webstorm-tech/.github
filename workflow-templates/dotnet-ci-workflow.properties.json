@@ -1,0 +1,15 @@
+{
+    "name": ".NET Continuous Integration Workflow",
+    "description": "This is a basic workflow for building and testing .NET Core projects as part of a continuous integration.",
+    "iconName": "dotnet",
+    "categories": [
+        "Continuous integration",
+        "C#",
+        "F#",
+        "Visual Basic",
+        "ASP",
+        "ASP.NET",
+        ".NET",
+        "AspNetCore",
+        "DotNetConsole"]
+}
